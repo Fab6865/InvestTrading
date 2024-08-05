@@ -1,0 +1,651 @@
+<html><head><base href="https://investmentgame.example.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu Dynamique d'Investissement Avancé</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f8ff;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .game-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        padding: 20px;
+        max-width: 800px;
+        width: 100%;
+    }
+    h1, h2, h3 {
+        color: #2c3e50;
+        text-align: center;
+    }
+    .portfolio, .shop-items, .company-list {
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .asset, .shop-item, .company-item {
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        transition: transform 0.3s ease;
+        margin: 5px;
+        flex: 1 1 calc(50% - 20px);
+    }
+    .asset:hover, .shop-item:hover, .company-item:hover {
+        transform: scale(1.05);
+    }
+    .controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    button {
+        padding: 10px 20px;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #2980b9;
+    }
+    .invest-btn {
+        background-color: #27ae60;
+    }
+    .invest-btn:hover {
+        background-color: #219a52;
+    }
+    .sell-all-btn {
+        background-color: #e74c3c;
+    }
+    .sell-all-btn:hover {
+        background-color: #c0392b;
+    }
+    #message {
+        margin-top: 20px;
+        text-align: center;
+        font-weight: bold;
+        color: #27ae60;
+    }
+    #clock {
+        text-align: center;
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #34495e;
+    }
+    .menu {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        background-color: #34495e;
+        padding: 10px;
+        border-radius: 5px;
+    }
+    .menu-btn {
+        background-color: #34495e;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .menu-btn:hover, .menu-btn.active {
+        background-color: #2c3e50;
+    }
+    .page {
+        display: none;
+    }
+    .page.active {
+        display: block;
+    }
+    .robot-controls {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .robot-status {
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    .robot-active {
+        color: #27ae60;
+    }
+    .robot-inactive {
+        color: #e74c3c;
+    }
+    .asset-value {
+        font-weight: bold;
+        color: #27ae60;
+    }
+    .owned-companies {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+    .booster-timer {
+        font-size: 0.9em;
+        color: #e74c3c;
+        margin-top: 5px;
+    }
+    .price-change {
+        font-weight: bold;
+        margin-left: 5px;
+    }
+    .price-up {
+        color: #27ae60;
+    }
+    .price-down {
+        color: #e74c3c;
+    }
+    .luxury-item {
+        background-color: #f1c40f;
+        color: #34495e;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .luxury-item h4 {
+        margin: 0 0 10px 0;
+        color: #2c3e50;
+    }
+    .luxury-item button {
+        background-color: #e67e22;
+        margin-top: 10px;
+    }
+    .luxury-item button:hover {
+        background-color: #d35400;
+    }
+    .owned-luxury-items {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 20px;
+    }
+    .owned-luxury-item {
+        background-color: #f39c12;
+        color: #2c3e50;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 5px;
+    }
+</style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Jeu d'Investissement Avancé</h1>
+        <div class="menu">
+            <button class="menu-btn active" onclick="changePage('home')">Accueil</button>
+            <button class="menu-btn" onclick="changePage('shop')">Boutique</button>
+            <button class="menu-btn" onclick="changePage('company')">Entreprises</button>
+        </div>
+        <div id="clock"></div>
+        <div id="home" class="page active">
+            <div class="portfolio" id="portfolio">
+                <!-- Les actifs seront ajoutés ici dynamiquement -->
+            </div>
+            <div class="controls" id="controls">
+                <!-- Les boutons seront ajoutés ici dynamiquement -->
+            </div>
+            <div class="robot-controls">
+                <h3>Robot d'investissement</h3>
+                <input type="number" id="robot-amount" placeholder="Montant à investir">
+                <button onclick="activerRobot()">Activer le robot</button>
+                <button onclick="desactiverRobot()">Désactiver le robot</button>
+                <p class="robot-status" id="robot-status"></p>
+            </div>
+            <div class="owned-companies" id="owned-companies">
+                <h3>Entreprises possédées</h3>
+                <!-- Les entreprises possédées seront ajoutées ici dynamiquement -->
+            </div>
+            <div class="owned-luxury-items" id="owned-luxury-items">
+                <h3>Produits de luxe possédés</h3>
+                <!-- Les produits de luxe possédés seront ajoutés ici dynamiquement -->
+            </div>
+        </div>
+        <div id="shop" class="page">
+            <h2>Boutique</h2>
+            <div class="shop-items" id="shop-items">
+                <!-- Les items de la boutique seront ajoutés ici dynamiquement -->
+            </div>
+        </div>
+        <div id="company" class="page">
+            <h2>Entreprises à Acheter</h2>
+            <div class="company-list" id="company-list">
+                <!-- Les entreprises seront ajoutées ici dynamiquement -->
+            </div>
+        </div>
+        <div id="message"></div>
+    </div>
+
+<script>
+    const assets = [
+        { nom: "Actions", valeur: 100, volatilite: 0.4 },
+        { nom: "Obligations", valeur: 100, volatilite: 0.1 },
+        { nom: "Immobilier", valeur: 100, volatilite: 0.2 },
+        { nom: "Crypto", valeur: 100, volatilite: 0.8 }
+    ];
+
+    const boosters = [
+        { nom: "Booster Haussier", prix: 500, effet: 1.1, duree: 24 * 60 * 60 * 1000 },
+        { nom: "Booster Baissier", prix: 500, effet: 0.9, duree: 24 * 60 * 60 * 1000 }
+    ];
+
+    const entreprises = [
+        { nom: "TechCorp", prix: 1000, dividende: 50 },
+        { nom: "GreenEnergy", prix: 1500, dividende: 75 },
+        { nom: "FoodChain", prix: 800, dividende: 40 }
+    ];
+
+    const produitsLuxe = [
+        { nom: "Montre de luxe", prix: 10000, effet: "Augmente les dividendes de 5%" },
+        { nom: "Voiture de sport", prix: 50000, effet: "Augmente les gains boursiers de 2%" },
+        { nom: "Yacht privé", prix: 500000, effet: "Débloque des opportunités d'investissement exclusives" },
+        { nom: "Jet privé", prix: 1000000, effet: "Permet de voyager instantanément pour saisir des opportunités" },
+        { nom: "Île privée", prix: 5000000, effet: "Offre un refuge fiscal et augmente tous les revenus de 10%" }
+    ];
+
+    let portefeuille = {
+        cash: 500,
+        assets: assets.map(a => ({ ...a, quantite: 0, dernierPrix: a.valeur })),
+        boosters: [],
+        entreprises: {},
+        produitsLuxe: []
+    };
+
+    let tempsJeu = new Date(2023, 0, 1, 0, 0, 0);
+    let robotActif = false;
+    let montantRobot = 0;
+    let boosterActif = null;
+    let boosterTimer = null;
+
+    function afficherPortefeuille() {
+        const portfolioElement = document.getElementById('portfolio');
+        portfolioElement.innerHTML = `
+            <div class="asset">
+                <h3>Cash</h3>
+                <p>${portefeuille.cash.toFixed(2)} €</p>
+            </div>
+        `;
+        portefeuille.assets.forEach(asset => {
+            const valeurTotale = (asset.valeur * asset.quantite).toFixed(2);
+            const changement = ((asset.valeur - asset.dernierPrix) / asset.dernierPrix * 100).toFixed(2);
+            const changementClass = changement >= 0 ? 'price-up' : 'price-down';
+            const changementSymbol = changement >= 0 ? '▲' : '▼';
+            portfolioElement.innerHTML += `
+                <div class="asset">
+                    <h3>${asset.nom}</h3>
+                    <p>${asset.valeur.toFixed(2)} € 
+                        <span class="price-change ${changementClass}">${changementSymbol} ${Math.abs(changement)}%</span>
+                    </p>
+                    <p>Quantité: ${asset.quantite}</p>
+                    <p class="asset-value">Valeur totale: ${valeurTotale} €</p>
+                </div>
+            `;
+        });
+        afficherEntreprisesPossedees();
+        afficherProduitsLuxePossedes();
+    }
+
+    function afficherEntreprisesPossedees() {
+        const ownedCompaniesElement = document.getElementById('owned-companies');
+        ownedCompaniesElement.innerHTML = '<h3>Entreprises possédées</h3>';
+        for (const [nom, quantite] of Object.entries(portefeuille.entreprises)) {
+            const entreprise = entreprises.find(e => e.nom === nom);
+            ownedCompaniesElement.innerHTML += `
+                <div class="company-item">
+                    <h4>${nom} ${quantite}</h4>
+                    <p>Dividende: ${entreprise.dividende * quantite} €</p>
+                </div>
+            `;
+        }
+    }
+
+    function afficherProduitsLuxePossedes() {
+        const ownedLuxuryItemsElement = document.getElementById('owned-luxury-items');
+        ownedLuxuryItemsElement.innerHTML = '<h3>Produits de luxe possédés</h3>';
+        portefeuille.produitsLuxe.forEach(produit => {
+            ownedLuxuryItemsElement.innerHTML += `
+                <div class="owned-luxury-item">
+                    <h4>${produit.nom}</h4>
+                    <p>${produit.effet}</p>
+                </div>
+            `;
+        });
+    }
+
+    function creerBoutons() {
+        const controlsElement = document.getElementById('controls');
+        controlsElement.innerHTML = '';
+        portefeuille.assets.forEach((asset, index) => {
+            controlsElement.innerHTML += `
+                <button class="invest-btn" onclick="investir(${index})">Investir ${asset.nom}</button>
+                <button class="sell-all-btn" onclick="vendreTout(${index})">Vendre Tout ${asset.nom}</button>
+            `;
+        });
+    }
+
+    function afficherBoutique() {
+        const shopElement = document.getElementById('shop-items');
+        shopElement.innerHTML = '<h3>Boosters</h3>';
+        boosters.forEach((booster, index) => {
+            shopElement.innerHTML += `
+                <div class="shop-item">
+                    <h3>${booster.nom}</h3>
+                    <p>Prix: ${booster.prix} €</p>
+                    <button onclick="acheterBooster(${index})">Acheter</button>
+                    ${boosterActif && boosterActif.nom === booster.nom ? 
+                        `<p class="booster-timer" id="booster-timer-${index}"></p>` : ''}
+                </div>
+            `;
+        });
+
+        shopElement.innerHTML += '<h3>Produits de Luxe</h3>';
+        produitsLuxe.forEach((produit, index) => {
+            shopElement.innerHTML += `
+                <div class="luxury-item">
+                    <h4>${produit.nom}</h4>
+                    <p>Prix: ${produit.prix.toLocaleString()} €</p>
+                    <p>Effet: ${produit.effet}</p>
+                    <button onclick="acheterProduitLuxe(${index})">Acheter</button>
+                </div>
+            `;
+        });
+    }
+
+    function afficherEntreprises() {
+        const companyElement = document.getElementById('company-list');
+        companyElement.innerHTML = '';
+        entreprises.forEach((entreprise, index) => {
+            companyElement.innerHTML += `
+                <div class="company-item">
+                    <h3>${entreprise.nom}</h3>
+                    <p>Prix: ${entreprise.prix.toFixed(2)} €</p>
+                    <p>Dividende: ${entreprise.dividende} €</p>
+                    <button onclick="acheterEntreprise(${index})">Acheter</button>
+                </div>
+            `;
+        });
+    }
+
+    function investir(index) {
+        const asset = portefeuille.assets[index];
+        if (portefeuille.cash >= asset.valeur) {
+            portefeuille.cash -= asset.valeur;
+            asset.quantite++;
+            afficherMessage(`Vous avez investi dans ${asset.nom}`);
+        } else {
+            afficherMessage("Pas assez de cash pour investir !");
+        }
+        afficherPortefeuille();
+        sauvegarderJeu();
+    }
+
+    function vendreTout(index) {
+        const asset = portefeuille.assets[index];
+        if (asset.quantite > 0) {
+            const montantVendu = asset.valeur * asset.quantite;
+            portefeuille.cash += montantVendu;
+            const quantiteVendue = asset.quantite;
+            asset.quantite = 0;
+            afficherMessage(`Vous avez vendu tous vos ${asset.nom} (${quantiteVendue}) pour ${montantVendu.toFixed(2)} €`);
+        } else {
+            afficherMessage(`Vous n'avez pas de ${asset.nom} à vendre !`);
+        }
+        afficherPortefeuille();
+        sauvegarderJeu();
+    }
+
+    function acheterBooster(index) {
+        const booster = boosters[index];
+        if (portefeuille.cash >= booster.prix) {
+            portefeuille.cash -= booster.prix;
+            activerBooster(booster);
+            afficherMessage(`Vous avez acheté et activé un ${booster.nom}`);
+        } else {
+            afficherMessage("Pas assez de cash pour acheter ce booster !");
+        }
+        afficherPortefeuille();
+        afficherBoutique();
+        sauvegarderJeu();
+    }
+
+    function activerBooster(booster) {
+        if (boosterActif) {
+            clearTimeout(boosterTimer);
+        }
+        boosterActif = booster;
+        const finBooster = new Date(tempsJeu.getTime() + booster.duree);
+        
+        boosterTimer = setTimeout(() => {
+            boosterActif = null;
+            afficherMessage(`Le ${booster.nom} a expiré.`);
+            afficherBoutique();
+            sauvegarderJeu();
+        }, booster.duree / 180); // Diviser par 180 car 1 minute de jeu = 3 heures réelles
+
+        afficherBoutique();
+        updateBoosterTimer(finBooster);
+    }
+
+    function updateBoosterTimer(finBooster) {
+        const updateTimer = () => {
+            if (boosterActif) {
+                const tempsRestant = finBooster - tempsJeu;
+                if (tempsRestant > 0) {
+                    const heures = Math.floor(tempsRestant / 3600000);
+                    const minutes = Math.floor((tempsRestant % 3600000) / 60000);
+                    const timerElement = document.getElementById(`booster-timer-${boosters.findIndex(b => b.nom === boosterActif.nom)}`);
+                    if (timerElement) {
+                        timerElement.textContent = `Temps restant: ${heures}h ${minutes}m`;
+                    }
+                    setTimeout(updateTimer, 1000);
+                }
+            }
+        };
+        updateTimer();
+    }
+
+    function acheterEntreprise(index) {
+        const entreprise = entreprises[index];
+        if (portefeuille.cash >= entreprise.prix) {
+            portefeuille.cash -= entreprise.prix;
+            if (portefeuille.entreprises[entreprise.nom]) {
+                portefeuille.entreprises[entreprise.nom]++;
+            } else {
+                portefeuille.entreprises[entreprise.nom] = 1;
+            }
+            afficherMessage(`Vous avez acheté ${entreprise.nom}`);
+        } else {
+            afficherMessage("Pas assez de cash pour acheter cette entreprise !");
+        }
+        afficherPortefeuille();
+        afficherEntreprises();
+        sauvegarderJeu();
+    }
+
+    function acheterProduitLuxe(index) {
+        const produit = produitsLuxe[index];
+        if (portefeuille.cash >= produit.prix) {
+            portefeuille.cash -= produit.prix;
+            portefeuille.produitsLuxe.push(produit);
+            afficherMessage(`Vous avez acheté ${produit.nom}! ${produit.effet}`);
+            appliquerEffetProduitLuxe(produit);
+        } else {
+            afficherMessage("Pas assez de cash pour acheter ce produit de luxe !");
+        }
+        afficherPortefeuille();
+        afficherBoutique();
+        sauvegarderJeu();
+    }
+
+    function appliquerEffetProduitLuxe(produit) {
+        switch(produit.nom) {
+            case "Montre de luxe":
+                entreprises.forEach(e => e.dividende *= 1.05);
+                break;
+            case "Voiture de sport":
+                assets.forEach(a => a.volatilite *= 1.02);
+                break;
+            case "Yacht privé":
+                // Logique pour débloquer des opportunités exclusives
+                break;
+            case "Jet privé":
+                // Logique pour permettre des investissements instantanés
+                break;
+            case "Île privée":
+                assets.forEach(a => a.valeur *= 1.1);
+                entreprises.forEach(e => e.dividende *= 1.1);
+                break;
+        }
+    }
+
+    function simulerMarche() {
+        portefeuille.assets.forEach(asset => {
+            asset.dernierPrix = asset.valeur;
+            let changement = (Math.random() - 0.5) * 2 * asset.volatilite;
+            if (boosterActif) {
+                changement *= boosterActif.effet;
+            }
+            asset.valeur *= (1 + changement);
+            asset.valeur = Math.max(asset.valeur, 0.01); // Empêche les valeurs négatives ou nulles
+        });
+
+        // Paiement des dividendes
+        for (const [nom, quantite] of Object.entries(portefeuille.entreprises)) {
+            const entreprise = entreprises.find(e => e.nom === nom);
+            portefeuille.cash += entreprise.dividende * quantite;
+        }
+
+        if (robotActif) {
+            investissementAutomatique();
+        }
+
+        afficherPortefeuille();
+        afficherEntreprises();
+        sauvegarderJeu();
+    }
+
+    function afficherMessage(message) {
+        document.getElementById('message').textContent = message;
+    }
+
+    function mettreAJourHorloge() {
+        tempsJeu.setMinutes(tempsJeu.getMinutes() + 3);
+        document.getElementById('clock').textContent = `Date du jeu : ${tempsJeu.toLocaleString()}`;
+    }
+
+    function changePage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(page).classList.add('active');
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        if (page === 'shop') {
+            afficherBoutique();
+        } else if (page === 'company') {
+            afficherEntreprises();
+        }
+    }
+
+    function activerRobot() {
+        montantRobot = parseFloat(document.getElementById('robot-amount').value);
+        if (montantRobot > 0) {
+            robotActif = true;
+            afficherMessage("Robot d'investissement activé");
+            updateRobotStatus();
+        } else {
+            afficherMessage("Veuillez entrer un montant valide");
+        }
+        sauvegarderJeu();
+    }
+
+    function desactiverRobot() {
+        robotActif = false;
+        montantRobot = 0;
+        afficherMessage("Robot d'investissement désactivé");
+        updateRobotStatus();
+        sauvegarderJeu();
+    }
+
+    function updateRobotStatus() {
+        const statusElement = document.getElementById('robot-status');
+        if (robotActif) {
+            statusElement.textContent = `Robot actif - Montant d'investissement : ${montantRobot} €`;
+            statusElement.className = 'robot-status robot-active';
+        } else {
+            statusElement.textContent = 'Robot inactif';
+            statusElement.className = 'robot-status robot-inactive';
+        }
+    }
+
+    function investissementAutomatique() {
+        if (portefeuille.cash >= montantRobot) {
+            const assetIndex = Math.floor(Math.random() * portefeuille.assets.length);
+            const asset = portefeuille.assets[assetIndex];
+            const quantite = Math.floor(montantRobot / asset.valeur);
+            if (quantite > 0) {
+                portefeuille.cash -= quantite * asset.valeur;
+                asset.quantite += quantite;
+                afficherMessage(`Le robot a investi dans ${quantite} ${asset.nom}`);
+            }
+        }
+    }
+
+    function sauvegarderJeu() {
+        const etatJeu = {
+            portefeuille: portefeuille,
+            tempsJeu: tempsJeu,
+            robotActif: robotActif,
+            montantRobot: montantRobot,
+            boosterActif: boosterActif
+        };
+        localStorage.setItem('etatJeu', JSON.stringify(etatJeu));
+    }
+
+    function chargerJeu() {
+        const etatJeuSauvegarde = localStorage.getItem('etatJeu');
+        if (etatJeuSauvegarde) {
+            const etatJeu = JSON.parse(etatJeuSauvegarde);
+            portefeuille = etatJeu.portefeuille;
+            tempsJeu = new Date(etatJeu.tempsJeu);
+            robotActif = etatJeu.robotActif;
+            montantRobot = etatJeu.montantRobot;
+            boosterActif = etatJeu.boosterActif;
+
+            afficherPortefeuille();
+            creerBoutons();
+            mettreAJourHorloge();
+            afficherBoutique();
+            afficherEntreprises();
+            updateRobotStatus();
+        }
+    }
+
+    setInterval(() => {
+        simulerMarche();
+        mettreAJourHorloge();
+    }, 1000); // Mise à jour toutes les secondes (1 minute de jeu = 3 heures réelles)
+
+    window.onload = function() {
+        chargerJeu();
+    };
+
+    afficherPortefeuille();
+    creerBoutons();
+    mettreAJourHorloge();
+    afficherBoutique();
+    afficherEntreprises();
+    updateRobotStatus();
+</script>
+</body></html>
